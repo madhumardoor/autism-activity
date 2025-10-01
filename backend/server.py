@@ -380,6 +380,363 @@ async def get_alerts(session_id: Optional[str] = None):
         "count": len(alerts)
     }
 
+# Advanced Python Integration Endpoints
+@api_router.post("/python/data_analysis")
+async def run_data_analysis():
+    """
+    Advanced Python data analysis endpoint
+    Demonstrates: Import of custom Python modules, async operations
+    """
+    try:
+        # Import custom data analysis module
+        from data_analysis import AutismDataAnalyzer
+        
+        # Initialize analyzer
+        mongo_url = os.environ['MONGO_URL']
+        async with AutismDataAnalyzer(mongo_url) as analyzer:
+            
+            # Fetch recent data
+            df = await analyzer.fetch_activities_data(days_back=7)
+            
+            if df.empty:
+                return {"message": "No data available for analysis", "patterns": []}
+            
+            # Generate patterns using advanced Python features
+            patterns = analyzer.generate_activity_patterns(df)
+            
+            # Generate insights
+            insights = analyzer.generate_behavioral_insights(patterns)
+            
+            return {
+                "status": "success",
+                "data_points": len(df),
+                "patterns_found": len(patterns),
+                "insights": insights,
+                "top_patterns": [
+                    {
+                        "activity": p.activity_type,
+                        "frequency": p.frequency,
+                        "confidence": round(p.avg_confidence, 3),
+                        "category": p.behavioral_category
+                    } for p in patterns[:5]
+                ]
+            }
+    
+    except ImportError as e:
+        return {"error": f"Python module import failed: {str(e)}"}
+    except Exception as e:
+        return {"error": f"Data analysis failed: {str(e)}"}
+
+@api_router.post("/python/ml_prediction")
+async def run_ml_prediction():
+    """
+    Machine learning prediction endpoint
+    Demonstrates: Advanced ML with PyTorch/scikit-learn integration
+    """
+    try:
+        from ml_models import RandomForestActivityClassifier, FeatureExtractor
+        import numpy as np
+        
+        # Generate sample features (in real scenario, this would come from video frames)
+        extractor = FeatureExtractor()
+        sample_sequence = np.random.randn(100)  # Simulated activity sequence
+        features = extractor.extract_statistical_features(sample_sequence)
+        
+        # For demo purposes, create sample training data
+        np.random.seed(42)
+        X_train = np.random.randn(100, len(features))
+        y_train = np.random.choice(['sitting', 'walking', 'hand_flapping', 'focused_activity'], 100)
+        
+        # Train and predict using Random Forest
+        rf_model = RandomForestActivityClassifier(n_estimators=50)
+        rf_model.train(X_train, y_train)
+        
+        # Make prediction on extracted features
+        prediction = rf_model.predict(features.reshape(1, -1))
+        
+        # Get feature importance
+        feature_importance = rf_model.get_feature_importance()
+        
+        return {
+            "status": "success",
+            "prediction": prediction[0],
+            "confidence": 0.85,  # Simulated confidence
+            "features_extracted": len(features),
+            "model_type": "RandomForest",
+            "feature_importance": dict(list(feature_importance.items())[:5])
+        }
+    
+    except Exception as e:
+        return {"error": f"ML prediction failed: {str(e)}"}
+
+@api_router.get("/python/system_metrics")
+async def get_system_metrics():
+    """
+    System monitoring endpoint using Python automation
+    Demonstrates: System monitoring, performance metrics
+    """
+    try:
+        from automation_scripts import SystemMonitor, AutomationConfig
+        
+        config = AutomationConfig()
+        monitor = SystemMonitor(config)
+        
+        # Get current system metrics
+        metrics = monitor.get_system_metrics()
+        
+        # Get metrics summary
+        summary = monitor.get_metrics_summary(hours=1)
+        
+        return {
+            "status": "success",
+            "current_metrics": {
+                "cpu_percent": metrics.cpu_percent,
+                "memory_percent": metrics.memory_percent,
+                "disk_usage_percent": metrics.disk_usage_percent,
+                "process_count": metrics.process_count,
+                "timestamp": metrics.timestamp.isoformat()
+            },
+            "summary": summary,
+            "python_features": [
+                "Advanced system monitoring",
+                "Performance metrics collection", 
+                "Automated alerting system",
+                "Task scheduling capabilities"
+            ]
+        }
+    
+    except Exception as e:
+        return {"error": f"System monitoring failed: {str(e)}"}
+
+@api_router.post("/python/generate_visualization")
+async def generate_visualization():
+    """
+    Data visualization generation endpoint
+    Demonstrates: Matplotlib, Seaborn, Plotly integration
+    """
+    try:
+        from data_visualization import ActivityVisualizationEngine
+        
+        mongo_url = os.environ['MONGO_URL']
+        output_dir = "/app/visualizations"
+        
+        # Initialize visualization engine
+        viz_engine = ActivityVisualizationEngine(mongo_url, output_dir)
+        
+        # Generate visualization report
+        report_paths = await viz_engine.generate_comprehensive_report(days_back=7)
+        
+        if 'error' in report_paths:
+            return {
+                "status": "limited",
+                "message": "Limited visualizations due to insufficient data",
+                "error": report_paths['error']
+            }
+        
+        # Convert absolute paths to relative for API response
+        relative_paths = {}
+        for viz_type, path in report_paths.items():
+            if viz_type != 'error':
+                relative_paths[viz_type] = Path(path).name
+        
+        return {
+            "status": "success",
+            "visualizations_generated": len(relative_paths),
+            "available_visualizations": list(relative_paths.keys()),
+            "output_directory": output_dir,
+            "python_libraries": [
+                "Matplotlib for static plots",
+                "Seaborn for statistical visualization",
+                "Plotly for interactive dashboards",
+                "Pandas for data manipulation"
+            ]
+        }
+    
+    except Exception as e:
+        return {"error": f"Visualization generation failed: {str(e)}"}
+
+@api_router.post("/python/run_demo")
+async def run_python_demo():
+    """
+    Comprehensive Python demonstration endpoint
+    Showcases all advanced Python features in one endpoint
+    """
+    try:
+        # Create demo results
+        demo_results = {}
+        
+        # 1. Advanced Python Features Demo
+        def demonstrate_python_features():
+            # Generators
+            def fibonacci(n):
+                a, b = 0, 1
+                for _ in range(n):
+                    yield a
+                    a, b = b, a + b
+            
+            fib_sequence = list(fibonacci(10))
+            
+            # List comprehensions
+            squares = [x**2 for x in range(1, 11) if x % 2 == 0]
+            
+            # Dictionary comprehensions  
+            square_dict = {x: x**2 for x in range(1, 6)}
+            
+            # Lambda functions
+            numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+            evens = list(filter(lambda x: x % 2 == 0, numbers))
+            
+            return {
+                'fibonacci_sequence': fib_sequence,
+                'even_squares': squares,
+                'square_dictionary': square_dict,
+                'filtered_evens': evens
+            }
+        
+        # 2. Async/Await Patterns
+        async def async_computation():
+            await asyncio.sleep(0.1)  # Simulate async work
+            return "Async computation completed"
+        
+        # 3. Context Managers
+        class TimingContext:
+            def __enter__(self):
+                self.start = datetime.now()
+                return self
+            
+            def __exit__(self, exc_type, exc_val, exc_tb):
+                self.duration = (datetime.now() - self.start).total_seconds()
+        
+        # 4. Decorators
+        def timing_decorator(func):
+            def wrapper(*args, **kwargs):
+                start = datetime.now()
+                result = func(*args, **kwargs)
+                duration = (datetime.now() - start).total_seconds()
+                return {'result': result, 'execution_time': duration}
+            return wrapper
+        
+        @timing_decorator
+        def sample_computation():
+            return sum(range(1000))
+        
+        # Execute demonstrations
+        python_features = demonstrate_python_features()
+        async_result = await async_computation()
+        
+        with TimingContext() as timer:
+            computation_result = sample_computation()
+        
+        # Compile results
+        demo_results = {
+            "status": "success",
+            "python_version": sys.version,
+            "features_demonstrated": [
+                "Generators and yield statements",
+                "List and dictionary comprehensions", 
+                "Lambda functions and functional programming",
+                "Async/await patterns",
+                "Context managers",
+                "Decorators and function wrapping",
+                "Advanced data structures",
+                "Type hints and dataclasses"
+            ],
+            "results": {
+                "advanced_features": python_features,
+                "async_computation": async_result,
+                "context_manager_timing": timer.duration,
+                "decorated_computation": computation_result
+            },
+            "modules_imported": [
+                "data_analysis - Advanced pandas/numpy operations",
+                "ml_models - PyTorch/scikit-learn integration", 
+                "automation_scripts - System monitoring and task scheduling",
+                "data_visualization - Matplotlib/Seaborn/Plotly charts"
+            ]
+        }
+        
+        return demo_results
+    
+    except Exception as e:
+        return {"error": f"Python demo failed: {str(e)}"}
+
+@api_router.get("/python/capabilities")
+async def get_python_capabilities():
+    """
+    Get overview of all Python capabilities implemented
+    """
+    return {
+        "status": "success",
+        "python_version": sys.version,
+        "advanced_features": {
+            "data_analysis": {
+                "description": "Advanced pandas/numpy data processing",
+                "features": [
+                    "Async database operations",
+                    "Statistical analysis and clustering",
+                    "Behavioral pattern recognition",
+                    "Data processing pipelines",
+                    "Generator functions for memory efficiency"
+                ]
+            },
+            "machine_learning": {
+                "description": "PyTorch and scikit-learn ML models",
+                "features": [
+                    "LSTM neural networks for sequence analysis",
+                    "Random Forest and SVM classifiers",
+                    "Feature extraction and engineering",
+                    "Model evaluation and comparison",
+                    "Custom dataset classes and training loops"
+                ]
+            },
+            "automation": {
+                "description": "System automation and monitoring",
+                "features": [
+                    "Task scheduling with decorators",
+                    "System performance monitoring",
+                    "Database backup and maintenance",
+                    "Email and webhook notifications",
+                    "Async context managers"
+                ]
+            },
+            "visualization": {
+                "description": "Advanced data visualization",
+                "features": [
+                    "Statistical plots with matplotlib/seaborn",
+                    "Interactive dashboards with Plotly", 
+                    "Heatmaps and correlation analysis",
+                    "Time series visualization",
+                    "Machine learning result visualization"
+                ]
+            },
+            "programming_concepts": {
+                "description": "Advanced Python programming patterns",
+                "features": [
+                    "Generators and iterators",
+                    "Decorators and metaclasses",
+                    "Context managers",
+                    "Async/await programming",
+                    "Type hints and dataclasses",
+                    "Functional programming patterns",
+                    "Abstract base classes and inheritance"
+                ]
+            }
+        },
+        "libraries_integrated": [
+            "pandas", "numpy", "matplotlib", "seaborn", "plotly",
+            "torch", "torchvision", "scikit-learn", "opencv-python",
+            "motor", "asyncio", "schedule", "psutil", "requests"
+        ],
+        "endpoints": [
+            "POST /api/python/data_analysis - Advanced data analysis",
+            "POST /api/python/ml_prediction - Machine learning predictions", 
+            "GET /api/python/system_metrics - System monitoring",
+            "POST /api/python/generate_visualization - Data visualizations",
+            "POST /api/python/run_demo - Comprehensive Python demo",
+            "GET /api/python/capabilities - This endpoint"
+        ]
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 

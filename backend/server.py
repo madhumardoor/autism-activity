@@ -20,7 +20,12 @@ import base64
 from PIL import Image
 import tempfile
 import shutil
+import sys
+from pathlib import Path
 from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+# Add python_modules to path for advanced Python features
+sys.path.append('/app/python_modules')
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
